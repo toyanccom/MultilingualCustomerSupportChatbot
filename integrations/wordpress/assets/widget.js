@@ -1,4 +1,51 @@
 (function () {
+    const DEFAULT_STRINGS = {
+        widgetTitle: 'Support Assistant',
+        inputLabel: 'Ask a question',
+        placeholder: 'Type your message…',
+        sendButton: 'Send',
+        resetButton: 'Clear chat',
+        errorMessage: 'Sorry, something went wrong. Please try again.',
+        missingConfig: 'Chat configuration is missing. Please verify the widget settings.',
+    };
+
+    function resolveConfig(widget) {
+        const dataset = widget.dataset || {};
+        const globalConfig = window.MCSChatbot || {};
+        const strings = Object.assign(
+            {},
+            DEFAULT_STRINGS,
+            globalConfig.strings || {},
+        );
+
+        if (dataset.widgetTitle) {
+            strings.widgetTitle = dataset.widgetTitle;
+        }
+        if (dataset.inputLabel) {
+            strings.inputLabel = dataset.inputLabel;
+        }
+        if (dataset.placeholder) {
+            strings.placeholder = dataset.placeholder;
+        }
+        if (dataset.sendButton) {
+            strings.sendButton = dataset.sendButton;
+        }
+        if (dataset.resetButton) {
+            strings.resetButton = dataset.resetButton;
+        }
+        if (dataset.errorMessage) {
+            strings.errorMessage = dataset.errorMessage;
+        }
+
+        return {
+            chatEndpoint: globalConfig.chatEndpoint || dataset.chatEndpoint || '',
+            sessionEndpoint: globalConfig.sessionEndpoint || dataset.sessionEndpoint || '',
+            apiKey: globalConfig.apiKey || dataset.apiKey || '',
+            csrfToken: globalConfig.csrfToken || dataset.csrfToken || '',
+            strings: strings,
+        };
+    }
+
     function appendMessage(container, role, text) {
         const message = document.createElement('div');
         message.className = 'mcs-chatbot-message mcs-chatbot-message--' + role;
@@ -7,11 +54,35 @@
         container.scrollTop = container.scrollHeight;
     }
 
+    function displayError(widget, history, text) {
+        if (history) {
+            appendMessage(history, 'system', text);
+        }
+        widget.classList.add('mcs-chatbot-widget--error');
+        const form = widget.querySelector('.mcs-chatbot-form');
+        if (form) {
+            Array.from(form.elements).forEach(function (element) {
+                element.disabled = true;
+            });
+        }
+    }
+
     function setLoading(form, isLoading) {
         const submit = form.querySelector('.mcs-chatbot-send');
         if (submit) {
             submit.disabled = isLoading;
         }
+    }
+
+    function buildHeaders(config) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (config.apiKey) {
+            headers['X-API-Key'] = config.apiKey;
+        }
+        if (config.csrfToken) {
+            headers['X-CSRF-Token'] = config.csrfToken;
+        }
+        return headers;
     }
 
     function initWidget(widget) {
@@ -27,21 +98,29 @@
             return;
         }
 
+        const config = resolveConfig(widget);
+
+        if (!config.chatEndpoint || !config.sessionEndpoint) {
+            displayError(widget, history, config.strings.missingConfig);
+            return;
+        }
+
         if (title) {
-            title.textContent = MCSChatbot.strings.widgetTitle;
+            title.textContent = config.strings.widgetTitle;
         }
         if (screenReaderLabel) {
-            screenReaderLabel.textContent = MCSChatbot.strings.inputLabel;
+            screenReaderLabel.textContent = config.strings.inputLabel;
         }
         if (sendButton) {
-            sendButton.textContent = MCSChatbot.strings.sendButton;
+            sendButton.textContent = config.strings.sendButton;
         }
         if (resetButton) {
-            resetButton.textContent = MCSChatbot.strings.resetButton;
+            resetButton.textContent = config.strings.resetButton;
         }
-        textarea.placeholder = MCSChatbot.strings.placeholder;
+        textarea.placeholder = config.strings.placeholder;
 
         let sessionId = null;
+        widget.classList.add('mcs-chatbot-widget--ready');
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
@@ -59,9 +138,9 @@
                 payload.session_id = sessionId;
             }
 
-            fetch(MCSChatbot.chatEndpoint, {
+            fetch(config.chatEndpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: buildHeaders(config),
                 body: JSON.stringify(payload)
             })
                 .then(function (response) {
@@ -75,7 +154,7 @@
                     appendMessage(history, 'bot', data.reply);
                 })
                 .catch(function () {
-                    appendMessage(history, 'system', MCSChatbot.strings.errorMessage);
+                    displayError(widget, history, config.strings.errorMessage);
                 })
                 .finally(function () {
                     setLoading(form, false);
@@ -88,9 +167,9 @@
                 if (!sessionId) {
                     return;
                 }
-                fetch(MCSChatbot.sessionEndpoint + encodeURIComponent(sessionId), {
+                fetch(config.sessionEndpoint + encodeURIComponent(sessionId), {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: buildHeaders(config)
                 })
                     .catch(function () {
                         // Ignore errors when clearing the session
@@ -103,9 +182,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        if (!window.MCSChatbot) {
-            return;
-        }
         document
             .querySelectorAll('.mcs-chatbot-widget')
             .forEach(function (widget) {

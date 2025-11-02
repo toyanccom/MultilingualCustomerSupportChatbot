@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from typing import Dict, Iterable, List, Optional
 import unicodedata
 
@@ -58,7 +59,7 @@ class KnowledgeBase:
                 best_entry = entry
                 best_score = score
 
-        if best_entry and best_score >= 0.6:
+        if best_entry and best_score >= 0.5:
             response = best_entry.localized_response(language)
             if response:
                 return response
@@ -373,15 +374,18 @@ def _similarity(first: str, second: str) -> float:
     if not first or not second:
         return 0.0
 
-    # Simple Jaccard similarity over word sets keeps implementation dependency free.
+    sequence_ratio = SequenceMatcher(None, first, second).ratio()
+
     first_tokens = set(first.split())
     second_tokens = set(second.split())
-    if not first_tokens or not second_tokens:
-        return 0.0
+    if first_tokens and second_tokens:
+        intersection = first_tokens & second_tokens
+        union = first_tokens | second_tokens
+        token_ratio = len(intersection) / len(union)
+    else:
+        token_ratio = 0.0
 
-    intersection = first_tokens & second_tokens
-    union = first_tokens | second_tokens
-    return len(intersection) / len(union)
+    return max(sequence_ratio, token_ratio)
 
 
 def _strip_accents(text: str) -> str:

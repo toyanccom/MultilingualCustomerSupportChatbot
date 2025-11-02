@@ -11,6 +11,7 @@ import unicodedata
 class SupportedLanguage(str, Enum):
     """Enumeration of languages supported by the chatbot."""
 
+    UNKNOWN = "und"
     ENGLISH = "en"
     SPANISH = "es"
     MANDARIN = "zh"
@@ -138,6 +139,99 @@ _KEYWORD_DICTIONARY: Dict[SupportedLanguage, Iterable[str]] = {
 }
 
 
+_STOPWORDS: Dict[SupportedLanguage, Iterable[str]] = {
+    SupportedLanguage.ENGLISH: (
+        "the",
+        "and",
+        "you",
+        "your",
+        "please",
+        "where",
+        "what",
+        "is",
+    ),
+    SupportedLanguage.SPANISH: (
+        "el",
+        "la",
+        "de",
+        "y",
+        "por",
+        "donde",
+        "cual",
+        "mi",
+    ),
+    SupportedLanguage.MANDARIN: (
+        "请问",
+        "我的",
+        "在哪里",
+        "订单",
+        "状态",
+        "如何",
+    ),
+    SupportedLanguage.FRENCH: (
+        "le",
+        "la",
+        "ou",
+        "de",
+        "est",
+        "ma",
+    ),
+    SupportedLanguage.GERMAN: (
+        "der",
+        "die",
+        "und",
+        "wo",
+        "mein",
+        "bestellung",
+    ),
+    SupportedLanguage.HINDI: (
+        "क्या",
+        "कहाँ",
+        "मेरा",
+        "आप",
+        "कृपया",
+        "स्थिति",
+    ),
+    SupportedLanguage.ARABIC: (
+        "ما",
+        "أين",
+        "طلب",
+        "من",
+        "يمكن",
+        "رجاء",
+    ),
+    SupportedLanguage.BENGALI: (
+        "কি",
+        "কোথায়",
+        "আমার",
+        "আপনি",
+        "ফেরত",
+        "অর্ডার",
+    ),
+    SupportedLanguage.PORTUGUESE: (
+        "onde",
+        "meu",
+        "pedido",
+        "qual",
+        "por",
+        "favor",
+    ),
+    SupportedLanguage.RUSSIAN: (
+        "мой",
+        "заказ",
+        "где",
+        "что",
+        "пожалуйста",
+        "статус",
+    ),
+}
+
+_EMPTY_STOPWORDS: frozenset[str] = frozenset()
+_STOPWORD_SETS: Dict[SupportedLanguage, frozenset[str]] = {
+    language: frozenset(words) for language, words in _STOPWORDS.items()
+}
+
+
 def detect_language(message: str) -> DetectionResult:
     """Detect the language of ``message`` based on keyword occurrence.
 
@@ -148,21 +242,35 @@ def detect_language(message: str) -> DetectionResult:
     """
 
     normalized = _strip_accents(message.lower())
-    best_language = SupportedLanguage.ENGLISH
-    best_score = 0
+    tokens = list(_tokenize(normalized))
+    best_language = SupportedLanguage.UNKNOWN
+    best_score = 0.0
+    best_script_bonus = 0
 
     for language, keywords in _KEYWORD_DICTIONARY.items():
-        score = sum(normalized.count(keyword) for keyword in keywords)
+        keyword_score = sum(normalized.count(keyword) for keyword in keywords)
+        stopword_set = _STOPWORD_SETS.get(language, _EMPTY_STOPWORDS)
+        stopword_score = sum(1 for token in tokens if token in stopword_set)
 
         script_detector = _SCRIPT_DETECTORS.get(language)
+        script_bonus = 0
         if script_detector and script_detector(message):
-            score += 1
+            script_bonus = 2
+
+        score = keyword_score + stopword_score + script_bonus
 
         if score > best_score:
             best_language = language
             best_score = score
+            best_script_bonus = script_bonus
 
-    confidence = 1.0 if best_score else 0.2
+    if best_language is SupportedLanguage.UNKNOWN or best_score == 0:
+        return DetectionResult(language=SupportedLanguage.UNKNOWN, confidence=0.0)
+
+    max_tokens = max(len(tokens), 3)
+    confidence = min(1.0, best_score / max_tokens)
+    if confidence < 0.6 and best_script_bonus:
+        confidence = 0.6
     return DetectionResult(language=best_language, confidence=confidence)
 
 
@@ -189,6 +297,18 @@ def _strip_accents(text: str) -> str:
 
     normalized = unicodedata.normalize("NFD", text)
     return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+
+
+def _tokenize(text: str) -> Iterable[str]:
+    token = []
+    for char in text:
+        if char.isalpha():
+            token.append(char)
+        elif token:
+            yield "".join(token)
+            token = []
+    if token:
+        yield "".join(token)
 
 
 _SCRIPT_DETECTORS: Dict[SupportedLanguage, Callable[[str], bool]] = {

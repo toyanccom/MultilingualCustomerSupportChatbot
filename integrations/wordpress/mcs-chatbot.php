@@ -11,17 +11,28 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-const MCS_CHATBOT_OPTION = 'mcs_chatbot_endpoint';
+const MCS_CHATBOT_ENDPOINT_OPTION = 'mcs_chatbot_endpoint';
+const MCS_CHATBOT_API_KEY_OPTION = 'mcs_chatbot_api_key';
 
 function mcs_chatbot_register_settings()
 {
     register_setting(
         'mcs_chatbot_options',
-        MCS_CHATBOT_OPTION,
+        MCS_CHATBOT_ENDPOINT_OPTION,
         [
             'type' => 'string',
             'sanitize_callback' => 'esc_url_raw',
             'default' => 'https://your-api.example.com',
+        ]
+    );
+
+    register_setting(
+        'mcs_chatbot_options',
+        MCS_CHATBOT_API_KEY_OPTION,
+        [
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => '',
         ]
     );
 }
@@ -40,7 +51,8 @@ function mcs_chatbot_settings_page()
             <?php
             settings_fields('mcs_chatbot_options');
             do_settings_sections('mcs_chatbot_options');
-            $endpoint = esc_url(get_option(MCS_CHATBOT_OPTION, 'https://your-api.example.com'));
+            $endpoint = esc_url(get_option(MCS_CHATBOT_ENDPOINT_OPTION, 'https://your-api.example.com'));
+            $api_key = esc_attr(get_option(MCS_CHATBOT_API_KEY_OPTION, ''));
             ?>
             <table class="form-table" role="presentation">
                 <tr>
@@ -49,7 +61,7 @@ function mcs_chatbot_settings_page()
                     </th>
                     <td>
                         <input
-                            name="<?php echo esc_attr(MCS_CHATBOT_OPTION); ?>"
+                            name="<?php echo esc_attr(MCS_CHATBOT_ENDPOINT_OPTION); ?>"
                             type="url"
                             id="mcs_chatbot_endpoint"
                             value="<?php echo $endpoint; ?>"
@@ -59,6 +71,24 @@ function mcs_chatbot_settings_page()
                         />
                         <p class="description">
                             <?php esc_html_e('Point this to the chatbot server you host (e.g. https://example.com). The widget automatically calls /chat and /sessions/{id}.', 'mcs-chatbot'); ?>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="mcs_chatbot_api_key"><?php esc_html_e('API key header', 'mcs-chatbot'); ?></label>
+                    </th>
+                    <td>
+                        <input
+                            name="<?php echo esc_attr(MCS_CHATBOT_API_KEY_OPTION); ?>"
+                            type="text"
+                            id="mcs_chatbot_api_key"
+                            value="<?php echo $api_key; ?>"
+                            class="regular-text"
+                            placeholder="<?php esc_attr_e('Optional shared secret', 'mcs-chatbot'); ?>"
+                        />
+                        <p class="description">
+                            <?php esc_html_e('If your chatbot server requires the X-API-Key header, paste it here. Leaving this empty keeps the request unauthenticated.', 'mcs-chatbot'); ?>
                         </p>
                     </td>
                 </tr>
@@ -98,8 +128,9 @@ function mcs_chatbot_register_assets()
         true
     );
 
-    $endpoint = get_option(MCS_CHATBOT_OPTION, 'https://your-api.example.com');
+    $endpoint = get_option(MCS_CHATBOT_ENDPOINT_OPTION, 'https://your-api.example.com');
     $endpoint = untrailingslashit($endpoint);
+    $api_key = get_option(MCS_CHATBOT_API_KEY_OPTION, '');
 
     wp_localize_script(
         'mcs-chatbot-widget',
@@ -107,6 +138,7 @@ function mcs_chatbot_register_assets()
         [
             'chatEndpoint' => $endpoint . '/chat',
             'sessionEndpoint' => $endpoint . '/sessions/',
+            'apiKey' => $api_key,
             'strings' => [
                 'widgetTitle' => __('Support Assistant', 'mcs-chatbot'),
                 'inputLabel' => __('Ask a question', 'mcs-chatbot'),
@@ -127,7 +159,13 @@ function mcs_chatbot_render_shortcode($atts, $content = '', $tag = '')
 
     ob_start();
     ?>
-    <div class="mcs-chatbot-widget" role="region" aria-live="polite">
+    <div
+        class="mcs-chatbot-widget"
+        role="region"
+        aria-live="polite"
+        data-chat-endpoint="<?php echo esc_attr($endpoint . '/chat'); ?>"
+        data-session-endpoint="<?php echo esc_attr($endpoint . '/sessions/'); ?>"
+    >
         <div class="mcs-chatbot-header">
             <strong class="mcs-chatbot-title"><?php esc_html_e('Support Assistant', 'mcs-chatbot'); ?></strong>
         </div>

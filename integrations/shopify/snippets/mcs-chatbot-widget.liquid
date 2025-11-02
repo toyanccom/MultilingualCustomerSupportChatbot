@@ -7,24 +7,57 @@
 {%- assign base_endpoint = settings.mcs_chatbot_endpoint | default: 'https://your-api.example.com' -%}
 {%- assign chat_endpoint = base_endpoint | append: '/chat' -%}
 {%- assign session_endpoint = base_endpoint | append: '/sessions/' -%}
+{%- assign api_key = settings.mcs_chatbot_api_key | default: '' -%}
+
+{%- assign widget_title = 'mcs_chatbot.widget_title' | t -%}
+{%- if widget_title contains 'translation missing' -%}
+  {%- assign widget_title = 'Support Assistant' -%}
+{%- endif -%}
+{%- assign input_label = 'mcs_chatbot.input_label' | t -%}
+{%- if input_label contains 'translation missing' -%}
+  {%- assign input_label = 'Ask a question' -%}
+{%- endif -%}
+{%- assign placeholder = 'mcs_chatbot.placeholder' | t -%}
+{%- if placeholder contains 'translation missing' -%}
+  {%- assign placeholder = 'Type your message…' -%}
+{%- endif -%}
+{%- assign send_button = 'mcs_chatbot.send_button' | t -%}
+{%- if send_button contains 'translation missing' -%}
+  {%- assign send_button = 'Send' -%}
+{%- endif -%}
+{%- assign reset_button = 'mcs_chatbot.reset_button' | t -%}
+{%- if reset_button contains 'translation missing' -%}
+  {%- assign reset_button = 'Clear chat' -%}
+{%- endif -%}
+{%- assign error_message = 'mcs_chatbot.error_message' | t -%}
+{%- if error_message contains 'translation missing' -%}
+  {%- assign error_message = 'Sorry, something went wrong. Please try again.' -%}
+{%- endif -%}
 
 <link rel="stylesheet" href="{{ 'mcs-chatbot.css' | asset_url }}" media="all">
 <div id="mcs-chatbot-widget-root"
      class="mcs-chatbot-widget"
      data-chat-endpoint="{{ chat_endpoint }}"
-     data-session-endpoint="{{ session_endpoint }}">
+     data-session-endpoint="{{ session_endpoint }}"
+     data-api-key="{{ api_key }}"
+     data-widget-title="{{ widget_title }}"
+     data-input-label="{{ input_label }}"
+     data-placeholder="{{ placeholder }}"
+     data-send-button="{{ send_button }}"
+     data-reset-button="{{ reset_button }}"
+     data-error-message="{{ error_message }}">
   <div class="mcs-chatbot-header">
-    <strong class="mcs-chatbot-title">Support Assistant</strong>
+    <strong class="mcs-chatbot-title">{{ widget_title }}</strong>
   </div>
   <div class="mcs-chatbot-history" aria-live="polite"></div>
   <form class="mcs-chatbot-form" novalidate>
     <label class="mcs-chatbot-label">
-      <span class="visually-hidden">Ask a question</span>
-      <textarea class="mcs-chatbot-input" rows="3" required placeholder="Type your message…"></textarea>
+      <span class="visually-hidden">{{ input_label }}</span>
+      <textarea class="mcs-chatbot-input" rows="3" required placeholder="{{ placeholder }}"></textarea>
     </label>
     <div class="mcs-chatbot-actions">
-      <button type="submit" class="mcs-chatbot-button mcs-chatbot-button--primary mcs-chatbot-send">Send</button>
-      <button type="button" class="mcs-chatbot-button mcs-chatbot-button--secondary mcs-chatbot-reset">Clear chat</button>
+      <button type="submit" class="mcs-chatbot-button mcs-chatbot-button--primary mcs-chatbot-send">{{ send_button }}</button>
+      <button type="button" class="mcs-chatbot-button mcs-chatbot-button--secondary mcs-chatbot-reset">{{ reset_button }}</button>
     </div>
   </form>
 </div>
@@ -32,13 +65,14 @@
   window.MCSChatbotConfig = {
     chatEndpoint: document.getElementById('mcs-chatbot-widget-root').dataset.chatEndpoint,
     sessionEndpoint: document.getElementById('mcs-chatbot-widget-root').dataset.sessionEndpoint,
+    apiKey: document.getElementById('mcs-chatbot-widget-root').dataset.apiKey,
     strings: {
-      widgetTitle: 'Support Assistant',
-      inputLabel: 'Ask a question',
-      placeholder: 'Type your message…',
-      sendButton: 'Send',
-      resetButton: 'Clear chat',
-      errorMessage: 'Sorry, something went wrong. Please try again.'
+      widgetTitle: '{{ widget_title }}',
+      inputLabel: '{{ input_label }}',
+      placeholder: '{{ placeholder }}',
+      sendButton: '{{ send_button }}',
+      resetButton: '{{ reset_button }}',
+      errorMessage: '{{ error_message }}'
     }
   };
 </script>

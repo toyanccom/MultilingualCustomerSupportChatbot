@@ -102,3 +102,13 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.mcs-chatbot-widget--error .mcs-chatbot-form {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.mcs-chatbot-widget--error .mcs-chatbot-message--system {
+  background: #fee4e4;
+  color: #7f1d1d;
+}

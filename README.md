@@ -9,13 +9,16 @@ APIs.
 
 - ✅ Supports ten widely used languages (English, Spanish, Mandarin, French,
   German, Hindi, Arabic, Bengali, Portuguese, and Russian) out of the box.
-- ✅ Keyword-based language detection to avoid heavyweight dependencies.
+- ✅ Hybrid language detection that combines script heuristics, keyword
+  spotting, and stopword statistics to keep responses in the correct locale
+  without external services.
 - ✅ Localized answers for common e-commerce scenarios such as order tracking,
   return policies, and product information.
 - ✅ CLI demo (`python -m src.main`) that simulates a short conversation and
   prints a transcript at the end.
-- ✅ Zero-dependency HTTP bridge (`python -m src.mcs_chatbot.server`) for
-  drop-in integration with storefront platforms such as WordPress and Shopify.
+- ✅ Zero-dependency HTTP bridge (`python -m src.mcs_chatbot.server`) featuring
+  configurable origin whitelists, session expiration, and optional API key
+  protection for storefront platforms such as WordPress and Shopify.
 - ✅ Ready-to-use WordPress plugin and Shopify snippet assets under
   `integrations/` so you can embed the widget without writing glue code.
 - ✅ Easily extendable knowledge base stored as Python data structures.
@@ -51,10 +54,17 @@ APIs.
    ```
 
    This starts an HTTP service that provides `/chat`, `/sessions/{id}`, and
-   `/health` endpoints used by the integration snippets below. By default the
-   server allows cross-origin requests from any domain; set the
-   `ALLOWED_ORIGINS` environment variable (comma separated) to restrict this in
-   production deployments.
+   `/health` endpoints used by the integration snippets below. Harden the
+   service in production by setting the following environment variables:
+
+   - `ALLOWED_ORIGINS`: Comma separated list of origins permitted to issue
+     browser requests. Defaults to `*`.
+   - `SESSION_TTL_SECONDS`: How long (in seconds) an inactive session stays in
+     memory before it is discarded. Defaults to 1800 (30 minutes).
+   - `MAX_SESSIONS`: Upper bound on simultaneous sessions before the oldest are
+     evicted. Defaults to 1000.
+   - `CHATBOT_API_KEYS`: Comma separated list of API keys. When provided,
+     callers must send the value via the `X-API-Key` header.
 
 ## WordPress Integration
 
@@ -64,7 +74,8 @@ APIs.
    **Multilingual CS Chatbot Widget** plugin.
 3. In **Settings → Multilingual CS Chatbot**, paste the base URL where the HTTP
    bridge is running (for example `https://support.example.com`). The plugin
-   automatically calls `/chat` and `/sessions/{id}` under that base URL.
+   automatically calls `/chat` and `/sessions/{id}` under that base URL. Supply
+   the optional API key if your server requires the `X-API-Key` header.
 4. Add the shortcode `[mcs_chatbot]` anywhere you want the chatbox to appear:
 
    ```wordpress
@@ -72,7 +83,9 @@ APIs.
    ```
 
    The plugin ships with a minimal UI, handles session persistence, and exposes
-   a reset button that clears the server-side conversation.
+   a reset button that clears the server-side conversation. It now detects
+   configuration issues at runtime and surfaces an accessible error message
+   instead of silently failing when required endpoints are missing.
 
 ## Shopify Integration
 
@@ -82,9 +95,10 @@ APIs.
 3. Add the provided `integrations/shopify/snippets/mcs-chatbot-widget.liquid`
    snippet to your theme and render it where you want the assistant to live
    (e.g. within `sections/footer.liquid`).
-4. In `config/settings_schema.json` add a new text field setting with the ID
-   `mcs_chatbot_endpoint` so editors can paste the API base URL (without trailing
-   slash). The snippet automatically derives `/chat` and `/sessions/{id}`.
+4. In `config/settings_schema.json` add new text settings with the IDs
+   `mcs_chatbot_endpoint` and (optionally) `mcs_chatbot_api_key` so editors can
+   paste the API base URL and shared header value. The snippet automatically
+   derives `/chat` and `/sessions/{id}`.
 5. Render the snippet and the widget script:
 
    ```liquid
@@ -92,7 +106,10 @@ APIs.
    ```
 
    The bundled JavaScript manages session IDs, streams responses into the chat
-   history, and exposes a clear button that calls the reset endpoint.
+   history, enforces API key headers when configured, and exposes a clear button
+   that calls the reset endpoint. It also mirrors all widget labels and error
+   strings from your theme locale so the widget remains accessible in every
+   language your storefront serves.
 
 ## Extending the Bot
 

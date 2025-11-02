@@ -46,6 +46,11 @@ class MultilingualCustomerSupportBot:
         """Provide a localized fallback when no answer is found."""
 
         fallbacks = {
+            SupportedLanguage.UNKNOWN: (
+                "I'm sorry, I wasn't able to recognise your language. Could you "
+                "rephrase or specify the language you're most comfortable with "
+                "so I can respond appropriately?"
+            ),
             SupportedLanguage.ENGLISH: (
                 "I'm sorry, I didn't quite catch that. Could you share more details about "
                 "your question so I can help you faster?"
