@@ -23,6 +23,8 @@ def test_returns_localized_responses():
     bot = MultilingualCustomerSupportBot()
     response = bot.reply("¿Cuál es su política de devoluciones?")
     assert "devoluciones" in response.lower()
+    assert bot.last_detection is not None
+    assert bot.last_detection.language is SupportedLanguage.SPANISH
 
 
 def test_returns_localized_responses_portuguese():

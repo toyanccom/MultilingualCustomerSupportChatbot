@@ -25,11 +25,13 @@ class MultilingualCustomerSupportBot:
     def __init__(self, knowledge_base: Optional[KnowledgeBase] = None):
         self.knowledge_base = knowledge_base or default_knowledge_base()
         self.history: List[Message] = []
+        self.last_detection: Optional[DetectionResult] = None
 
     def reply(self, message: str) -> str:
         """Return a localized reply to ``message``."""
 
         detection: DetectionResult = detect_language(message)
+        self.last_detection = detection
         self.history.append(Message(sender="customer", text=message))
 
         response = self.knowledge_base.best_response(detection.language, message)
