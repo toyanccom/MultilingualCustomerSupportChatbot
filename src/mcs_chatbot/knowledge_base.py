@@ -100,6 +100,31 @@ def default_knowledge_base() -> KnowledgeBase:
                     "bestellstatus",
                     "verfolge meine bestellung",
                 ),
+                SupportedLanguage.HINDI: (
+                    "मेरा ऑर्डर कहाँ है",
+                    "ऑर्डर की स्थिति",
+                    "मेरा ऑर्डर ट्रैक करें",
+                ),
+                SupportedLanguage.ARABIC: (
+                    "أين طلبي",
+                    "حالة الطلب",
+                    "تتبع طلبي",
+                ),
+                SupportedLanguage.BENGALI: (
+                    "আমার অর্ডার কোথায়",
+                    "অর্ডারের অবস্থা",
+                    "আমার অর্ডার ট্র্যাক করুন",
+                ),
+                SupportedLanguage.PORTUGUESE: (
+                    "onde está meu pedido",
+                    "status do pedido",
+                    "rastrear meu pedido",
+                ),
+                SupportedLanguage.RUSSIAN: (
+                    "где мой заказ",
+                    "статус заказа",
+                    "отследить мой заказ",
+                ),
             },
             responses={
                 SupportedLanguage.ENGLISH: (
@@ -120,6 +145,25 @@ def default_knowledge_base() -> KnowledgeBase:
                 SupportedLanguage.GERMAN: (
                     "Sie können Ihre Bestellung über den Sendungsverfolgungslink "
                     "in unserer E-Mail verfolgen. Soll ich ihn erneut senden?"
+                ),
+                SupportedLanguage.HINDI: (
+                    "आप अपने आदेश को हमारे ईमेल में भेजे गए ट्रैकिंग लिंक से देख सकते हैं। "
+                    "क्या आप चाहते हैं कि मैं इसे फिर से भेजूँ?"
+                ),
+                SupportedLanguage.ARABIC: (
+                    "يمكنك متابعة طلبك عبر رابط التتبع الذي أرسلناه إلى بريدك الإلكتروني. "
+                    "أخبرني إذا كنت تريد أن أعيد إرساله."
+                ),
+                SupportedLanguage.BENGALI: (
+                    "আপনি আমাদের পাঠানো ইমেইলের ট্র্যাকিং লিংক থেকে আপনার অর্ডার অনুসরণ করতে পারেন। "
+                    "আবার পাঠাতে হলে জানাবেন।"
+                ),
+                SupportedLanguage.PORTUGUESE: (
+                    "Você pode acompanhar o pedido pelo link de rastreamento que enviamos por e-mail. "
+                    "Quer que eu o envie novamente?"
+                ),
+                SupportedLanguage.RUSSIAN: (
+                    "Вы можете отслеживать заказ по ссылке из письма. Сообщите, если нужно отправить её снова."
                 ),
             },
         ),
@@ -151,6 +195,31 @@ def default_knowledge_base() -> KnowledgeBase:
                     "wie kann ich zurücksenden",
                     "kann ich eine rückerstattung bekommen",
                 ),
+                SupportedLanguage.HINDI: (
+                    "आपकी रिटर्न नीति क्या है",
+                    "मैं वापसी कैसे करूं",
+                    "क्या मुझे रिफंड मिल सकता है",
+                ),
+                SupportedLanguage.ARABIC: (
+                    "ما هي سياسة الإرجاع",
+                    "كيف أعيد المنتج",
+                    "هل يمكنني استرجاع المال",
+                ),
+                SupportedLanguage.BENGALI: (
+                    "আপনাদের রিটার্ন নীতি কী",
+                    "কীভাবে আমি রিটার্ন করব",
+                    "আমি কি রিফান্ড পেতে পারি",
+                ),
+                SupportedLanguage.PORTUGUESE: (
+                    "qual é a política de devolução",
+                    "como faço para devolver",
+                    "posso receber um reembolso",
+                ),
+                SupportedLanguage.RUSSIAN: (
+                    "какова ваша политика возврата",
+                    "как мне вернуть товар",
+                    "могу ли я получить возврат средств",
+                ),
             },
             responses={
                 SupportedLanguage.ENGLISH: (
@@ -171,6 +240,26 @@ def default_knowledge_base() -> KnowledgeBase:
                 SupportedLanguage.GERMAN: (
                     "Rücksendungen sind innerhalb von 30 Tagen im Originalzustand möglich. "
                     "Ich helfe Ihnen gern beim Erstellen des Rücksendeetiketts."
+                ),
+                SupportedLanguage.HINDI: (
+                    "मूल स्थिति में 30 दिनों के भीतर रिटर्न स्वीकार किए जाते हैं। "
+                    "मैं आपको प्रीपेड लेबल प्रक्रिया में मदद कर सकता हूँ।"
+                ),
+                SupportedLanguage.ARABIC: (
+                    "نقبل الإرجاع خلال 30 يوماً مع الحفاظ على حالة المنتج الأصلية. "
+                    "يمكنني مساعدتك في الحصول على بطاقة الشحن المسبقة."
+                ),
+                SupportedLanguage.BENGALI: (
+                    "আমরা ৩০ দিনের মধ্যে আসল অবস্থায় রিটার্ন গ্রহণ করি। "
+                    "প্রিপেইড লেবেল প্রক্রিয়ায় আমি আপনাকে সাহায্য করতে পারি।"
+                ),
+                SupportedLanguage.PORTUGUESE: (
+                    "Aceitamos devoluções em até 30 dias com o produto em perfeitas condições. "
+                    "Posso ajudar a gerar a etiqueta pré-paga."
+                ),
+                SupportedLanguage.RUSSIAN: (
+                    "Возврат возможен в течение 30 дней при сохранении товара в исходном состоянии. "
+                    "Я могу помочь оформить предоплаченный ярлык."
                 ),
             },
         ),
@@ -202,6 +291,31 @@ def default_knowledge_base() -> KnowledgeBase:
                     "hat es eine garantie",
                     "produktdetails",
                 ),
+                SupportedLanguage.HINDI: (
+                    "मुझे इस उत्पाद के बारे में बताएं",
+                    "क्या इसमें वारंटी है",
+                    "उत्पाद विवरण",
+                ),
+                SupportedLanguage.ARABIC: (
+                    "أخبرني عن هذا المنتج",
+                    "هل لديه ضمان",
+                    "معلومات المنتج",
+                ),
+                SupportedLanguage.BENGALI: (
+                    "এই পণ্য সম্পর্কে বলুন",
+                    "এতে কি ওয়ারেন্টি আছে",
+                    "পণ্যের বিবরণ",
+                ),
+                SupportedLanguage.PORTUGUESE: (
+                    "fale sobre este produto",
+                    "ele tem garantia",
+                    "detalhes do produto",
+                ),
+                SupportedLanguage.RUSSIAN: (
+                    "расскажите об этом товаре",
+                    "есть ли гарантия",
+                    "информация о товаре",
+                ),
             },
             responses={
                 SupportedLanguage.ENGLISH: (
@@ -222,6 +336,26 @@ def default_knowledge_base() -> KnowledgeBase:
                 SupportedLanguage.GERMAN: (
                     "Dieser Artikel bietet eine einjährige Garantie. Die kompletten "
                     "Spezifikationen finden Sie auf der Produktseite. Soll ich den Link senden?"
+                ),
+                SupportedLanguage.HINDI: (
+                    "इस आइटम में एक साल की वारंटी शामिल है और विस्तृत विवरण उत्पाद पृष्ठ पर उपलब्ध हैं। "
+                    "क्या आपको लिंक चाहिए?"
+                ),
+                SupportedLanguage.ARABIC: (
+                    "يتضمن هذا المنتج ضماناً لمدة عام، وجميع التفاصيل متاحة في صفحة المنتج. "
+                    "هل ترغب بالرابط؟"
+                ),
+                SupportedLanguage.BENGALI: (
+                    "এই পণ্যে এক বছরের ওয়ারেন্টি রয়েছে এবং বিস্তারিত তথ্য পণ্য পাতায় আছে। "
+                    "লিংকটি কি লাগবে?"
+                ),
+                SupportedLanguage.PORTUGUESE: (
+                    "Este item inclui garantia de um ano e as especificações completas estão na página do produto. "
+                    "Quer o link?"
+                ),
+                SupportedLanguage.RUSSIAN: (
+                    "Этот товар имеет годовую гарантию, а подробные характеристики доступны на странице товара. "
+                    "Нужна ссылка?"
                 ),
             },
         ),

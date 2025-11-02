@@ -12,7 +12,8 @@ def parse_args() -> argparse.Namespace:
         description=(
             "Chat with the Multilingual Customer Support Assistant. "
             "Enter customer questions in English, Spanish, Mandarin, French, "
-            "or German and receive localized replies."
+            "German, Hindi, Arabic, Bengali, Portuguese, or Russian and receive "
+            "localized replies."
         )
     )
     parser.add_argument(

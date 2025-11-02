@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Iterable
+from typing import Callable, Dict, Iterable
 import unicodedata
 
 
@@ -16,6 +16,11 @@ class SupportedLanguage(str, Enum):
     MANDARIN = "zh"
     FRENCH = "fr"
     GERMAN = "de"
+    HINDI = "hi"
+    ARABIC = "ar"
+    BENGALI = "bn"
+    PORTUGUESE = "pt"
+    RUSSIAN = "ru"
 
 
 @dataclass(frozen=True)
@@ -75,6 +80,61 @@ _KEYWORD_DICTIONARY: Dict[SupportedLanguage, Iterable[str]] = {
         "versand",
         "wo",
     ),
+    SupportedLanguage.HINDI: (
+        "नमस्ते",
+        "मदद",
+        "ऑर्डर",
+        "उत्पाद",
+        "रिफंड",
+        "शिपिंग",
+        "कहाँ",
+        "नीति",
+        "वापसी",
+    ),
+    SupportedLanguage.ARABIC: (
+        "مرحبا",
+        "مساعدة",
+        "طلب",
+        "منتج",
+        "استرداد",
+        "شحن",
+        "أين",
+        "سياسة",
+        "إرجاع",
+    ),
+    SupportedLanguage.BENGALI: (
+        "হ্যালো",
+        "সাহায্য",
+        "অর্ডার",
+        "পণ্য",
+        "রিফান্ড",
+        "শিপিং",
+        "কোথায়",
+        "নীতি",
+        "ফেরত",
+    ),
+    SupportedLanguage.PORTUGUESE: (
+        "ola",
+        "ajuda",
+        "pedido",
+        "produto",
+        "reembolso",
+        "envio",
+        "onde",
+        "politica",
+        "devolucao",
+    ),
+    SupportedLanguage.RUSSIAN: (
+        "привет",
+        "помощь",
+        "заказ",
+        "товар",
+        "возврат",
+        "доставка",
+        "где",
+        "политика",
+        "возврата",
+    ),
 }
 
 
@@ -94,9 +154,8 @@ def detect_language(message: str) -> DetectionResult:
     for language, keywords in _KEYWORD_DICTIONARY.items():
         score = sum(normalized.count(keyword) for keyword in keywords)
 
-        # Mandarin queries may consist solely of Han characters, so we boost the
-        # score if the message contains any character in that range.
-        if language is SupportedLanguage.MANDARIN and _contains_han_characters(message):
+        script_detector = _SCRIPT_DETECTORS.get(language)
+        if script_detector and script_detector(message):
             score += 1
 
         if score > best_score:
@@ -116,8 +175,26 @@ def _contains_han_characters(text: str) -> bool:
     return False
 
 
+def _contains_characters_in_range(text: str, start: str, end: str) -> bool:
+    """Return ``True`` if *text* includes characters between ``start`` and ``end``."""
+
+    for char in text:
+        if start <= char <= end:
+            return True
+    return False
+
+
 def _strip_accents(text: str) -> str:
     """Remove diacritics from ``text`` for easier keyword comparison."""
 
     normalized = unicodedata.normalize("NFD", text)
     return "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+
+
+_SCRIPT_DETECTORS: Dict[SupportedLanguage, Callable[[str], bool]] = {
+    SupportedLanguage.MANDARIN: lambda text: _contains_han_characters(text),
+    SupportedLanguage.HINDI: lambda text: _contains_characters_in_range(text, "\u0900", "\u097F"),
+    SupportedLanguage.ARABIC: lambda text: _contains_characters_in_range(text, "\u0600", "\u06FF"),
+    SupportedLanguage.BENGALI: lambda text: _contains_characters_in_range(text, "\u0980", "\u09FF"),
+    SupportedLanguage.RUSSIAN: lambda text: _contains_characters_in_range(text, "\u0400", "\u04FF"),
+}

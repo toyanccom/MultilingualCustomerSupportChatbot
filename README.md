@@ -7,7 +7,8 @@ APIs.
 
 ## Features
 
-- ✅ Supports English, Spanish, Mandarin, French, and German out of the box.
+- ✅ Supports ten widely used languages (English, Spanish, Mandarin, French,
+  German, Hindi, Arabic, Bengali, Portuguese, and Russian) out of the box.
 - ✅ Keyword-based language detection to avoid heavyweight dependencies.
 - ✅ Localized answers for common e-commerce scenarios such as order tracking,
   return policies, and product information.

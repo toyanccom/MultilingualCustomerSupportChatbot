@@ -63,6 +63,26 @@ class MultilingualCustomerSupportBot:
                 "Entschuldigung, das habe ich nicht ganz verstanden. Können Sie mir "
                 "weitere Details geben, damit ich Ihnen helfen kann?"
             ),
+            SupportedLanguage.HINDI: (
+                "माफ़ कीजिए, मैं पूरी तरह समझ नहीं पाया। कृपया थोड़ा और बताएँ "
+                "ताकि मैं जल्दी मदद कर सकूँ।"
+            ),
+            SupportedLanguage.ARABIC: (
+                "عذراً، لم أفهم ذلك تماماً. هل يمكنك تزويدي بمزيد من التفاصيل "
+                "لكي أساعدك بشكل أسرع؟"
+            ),
+            SupportedLanguage.BENGALI: (
+                "দুঃখিত, আমি পুরোপুরি বুঝতে পারিনি। অনুগ্রহ করে আরও কিছু বলুন "
+                "যাতে আমি দ্রুত সাহায্য করতে পারি।"
+            ),
+            SupportedLanguage.PORTUGUESE: (
+                "Desculpe, não entendi muito bem. Pode compartilhar mais detalhes "
+                "para que eu ajude você mais rápido?"
+            ),
+            SupportedLanguage.RUSSIAN: (
+                "Извините, я не до конца понял. Поделитесь, пожалуйста, подробностями, "
+                "чтобы я смог помочь быстрее."
+            ),
         }
 
         return fallbacks.get(language, fallbacks[SupportedLanguage.ENGLISH])
