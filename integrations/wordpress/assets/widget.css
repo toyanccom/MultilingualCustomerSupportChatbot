@@ -1,0 +1,89 @@
+.mcs-chatbot-widget {
+    border: 1px solid #d4d4d4;
+    border-radius: 8px;
+    padding: 16px;
+    max-width: 420px;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.mcs-chatbot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.1rem;
+}
+
+.mcs-chatbot-history {
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+.mcs-chatbot-message {
+    border-radius: 6px;
+    padding: 8px 12px;
+    line-height: 1.4;
+    font-size: 0.95rem;
+}
+
+.mcs-chatbot-message--user {
+    align-self: flex-end;
+    background: #0073aa;
+    color: #ffffff;
+}
+
+.mcs-chatbot-message--bot {
+    align-self: flex-start;
+    background: #f1f1f1;
+    color: #1d2327;
+}
+
+.mcs-chatbot-message--system {
+    align-self: center;
+    background: #fde8e8;
+    color: #8a1c1c;
+}
+
+.mcs-chatbot-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mcs-chatbot-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.mcs-chatbot-input {
+    resize: vertical;
+    min-height: 70px;
+}
+
+.mcs-chatbot-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.mcs-chatbot-send[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mcs-chatbot-widget--error .mcs-chatbot-form {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.mcs-chatbot-widget--error .mcs-chatbot-message--system {
+    background: #fdecec;
+    color: #5c0a0a;
+}
