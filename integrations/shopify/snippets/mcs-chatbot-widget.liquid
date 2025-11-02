@@ -1,0 +1,45 @@
+{%- comment -%}
+  Multilingual Customer Support Chatbot widget for Shopify.
+  1. Upload assets/mcs-chatbot.css and assets/mcs-chatbot.js to your theme.
+  2. Add a "Chatbot API endpoint" text field to config/settings_schema.json with the id "mcs_chatbot_endpoint".
+  3. Include this snippet where you want the widget to appear: {% render 'mcs-chatbot-widget' %}
+{%- endcomment -%}
+{%- assign base_endpoint = settings.mcs_chatbot_endpoint | default: 'https://your-api.example.com' -%}
+{%- assign chat_endpoint = base_endpoint | append: '/chat' -%}
+{%- assign session_endpoint = base_endpoint | append: '/sessions/' -%}
+
+<link rel="stylesheet" href="{{ 'mcs-chatbot.css' | asset_url }}" media="all">
+<div id="mcs-chatbot-widget-root"
+     class="mcs-chatbot-widget"
+     data-chat-endpoint="{{ chat_endpoint }}"
+     data-session-endpoint="{{ session_endpoint }}">
+  <div class="mcs-chatbot-header">
+    <strong class="mcs-chatbot-title">Support Assistant</strong>
+  </div>
+  <div class="mcs-chatbot-history" aria-live="polite"></div>
+  <form class="mcs-chatbot-form" novalidate>
+    <label class="mcs-chatbot-label">
+      <span class="visually-hidden">Ask a question</span>
+      <textarea class="mcs-chatbot-input" rows="3" required placeholder="Type your message…"></textarea>
+    </label>
+    <div class="mcs-chatbot-actions">
+      <button type="submit" class="mcs-chatbot-button mcs-chatbot-button--primary mcs-chatbot-send">Send</button>
+      <button type="button" class="mcs-chatbot-button mcs-chatbot-button--secondary mcs-chatbot-reset">Clear chat</button>
+    </div>
+  </form>
+</div>
+<script>
+  window.MCSChatbotConfig = {
+    chatEndpoint: document.getElementById('mcs-chatbot-widget-root').dataset.chatEndpoint,
+    sessionEndpoint: document.getElementById('mcs-chatbot-widget-root').dataset.sessionEndpoint,
+    strings: {
+      widgetTitle: 'Support Assistant',
+      inputLabel: 'Ask a question',
+      placeholder: 'Type your message…',
+      sendButton: 'Send',
+      resetButton: 'Clear chat',
+      errorMessage: 'Sorry, something went wrong. Please try again.'
+    }
+  };
+</script>
+<script src="{{ 'mcs-chatbot.js' | asset_url }}" defer></script>

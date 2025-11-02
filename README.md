@@ -16,6 +16,8 @@ APIs.
   prints a transcript at the end.
 - ✅ Zero-dependency HTTP bridge (`python -m src.mcs_chatbot.server`) for
   drop-in integration with storefront platforms such as WordPress and Shopify.
+- ✅ Ready-to-use WordPress plugin and Shopify snippet assets under
+  `integrations/` so you can embed the widget without writing glue code.
 - ✅ Easily extendable knowledge base stored as Python data structures.
 
 ## Getting Started
@@ -57,68 +59,40 @@ APIs.
 ## WordPress Integration
 
 1. Deploy the HTTP service somewhere accessible to your WordPress instance.
-2. Install the free [Code Snippets](https://wordpress.org/plugins/code-snippets/)
-   plugin (or add the code to a child theme's `functions.php`).
-3. Create a new snippet and paste:
+2. Copy the `integrations/wordpress` directory into
+   `wp-content/plugins/multilingual-cs-chatbot/` on your site and activate the
+   **Multilingual CS Chatbot Widget** plugin.
+3. In **Settings → Multilingual CS Chatbot**, paste the base URL where the HTTP
+   bridge is running (for example `https://support.example.com`). The plugin
+   automatically calls `/chat` and `/sessions/{id}` under that base URL.
+4. Add the shortcode `[mcs_chatbot]` anywhere you want the chatbox to appear:
 
-   ```php
-   function mcs_chatbot_proxy( $message, $session_id = '' ) {
-       $endpoint = 'https://your-api.example.com/chat';
-       $body = array(
-           'message'    => $message,
-           'session_id' => $session_id,
-       );
-
-       $response = wp_remote_post( $endpoint, array(
-           'headers' => array( 'Content-Type' => 'application/json' ),
-           'body'    => wp_json_encode( $body ),
-       ) );
-
-       if ( is_wp_error( $response ) ) {
-           return array( 'error' => $response->get_error_message() );
-       }
-
-       return json_decode( wp_remote_retrieve_body( $response ), true );
-   }
+   ```wordpress
+   [mcs_chatbot]
    ```
 
-4. You can now call `mcs_chatbot_proxy( 'Hola, ¿dónde está mi pedido?' )` from a
-   custom block, support form handler, or a Live Chat plugin hook to pipe
-   customer inquiries through the AI assistant.
+   The plugin ships with a minimal UI, handles session persistence, and exposes
+   a reset button that clears the server-side conversation.
 
 ## Shopify Integration
 
 1. Host the HTTP API and note the public base URL (e.g. using Vercel, Render, or
    a private server).
-2. Within the Shopify admin, navigate to **Online Store → Themes → Edit code**.
-3. Create a new asset `snippets/mcs-chatbot.js` with:
-
-   ```javascript
-   async function askMcsChatbot(message, sessionId) {
-     const response = await fetch('https://your-api.example.com/chat', {
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ message, session_id: sessionId }),
-     });
-
-     if (!response.ok) {
-       throw new Error('Chatbot request failed');
-     }
-
-     return await response.json();
-   }
-   window.askMcsChatbot = askMcsChatbot;
-   ```
-
-4. Include the snippet at the end of `theme.liquid`:
+2. Upload the files in `integrations/shopify/assets` to your theme assets.
+3. Add the provided `integrations/shopify/snippets/mcs-chatbot-widget.liquid`
+   snippet to your theme and render it where you want the assistant to live
+   (e.g. within `sections/footer.liquid`).
+4. In `config/settings_schema.json` add a new text field setting with the ID
+   `mcs_chatbot_endpoint` so editors can paste the API base URL (without trailing
+   slash). The snippet automatically derives `/chat` and `/sessions/{id}`.
+5. Render the snippet and the widget script:
 
    ```liquid
-   {% render 'mcs-chatbot.js' %}
+   {% render 'mcs-chatbot-widget' %}
    ```
 
-5. Bind the helper to an existing contact form or floating chat widget. Each
-   call returns the assistant reply, detected language, and a `session_id` that
-   you reuse for follow-up messages to preserve context.
+   The bundled JavaScript manages session IDs, streams responses into the chat
+   history, and exposes a clear button that calls the reset endpoint.
 
 ## Extending the Bot
 
@@ -142,6 +116,13 @@ src/
     knowledge_base.py
     language_detection.py
   main.py
+integrations/
+  wordpress/
+    mcs-chatbot.php
+    assets/
+  shopify/
+    assets/
+    snippets/
 ```
 
 Tests live under `tests/` and cover language detection, localized responses, and
